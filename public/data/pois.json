@@ -1,0 +1,11 @@
+{
+  "radiusDefault": 25,
+  "pois": [
+    { "id": "gerbang", "nama": "Gerbang Utama", "lat": 3.5700, "lon": 98.6800, "surveyed": false,
+      "deskripsi": "GANTI: deskripsi singkat tempat ini.", "model": null, "warna": "#e4572e" },
+    { "id": "rektorat", "nama": "Gedung Rektorat", "lat": 3.5703, "lon": 98.6804, "surveyed": false,
+      "deskripsi": "GANTI: deskripsi singkat tempat ini.", "model": null, "warna": "#2e86ab" },
+    { "id": "perpustakaan", "nama": "Perpustakaan", "lat": 3.5706, "lon": 98.6797, "surveyed": false,
+      "deskripsi": "GANTI: deskripsi singkat tempat ini.", "model": null, "warna": "#76b041" }
+  ]
+}
