@@ -14,6 +14,8 @@ const meshes = new Map();
 const mixers = [];
 let me = null; // {lat, lon, acc}
 let camRef = null, nearestId = null;
+const APP_VERSION = 'v0.5.2';
+let glbOk = 0, glbFail = 0;
 
 function loadVisited() {
   try { return new Set(JSON.parse(localStorage.getItem(STORE) || '[]')); } catch { return new Set(); }
@@ -78,6 +80,7 @@ function placePoi(locar, p) {
     const m = gltf.scene;
     m.scale.setScalar(p.skala ?? 10);
     attachPoiId(m, p.id);
+    glbOk++;
     holder.clear(); holder.userData.spin = null;
     holder.add(m);
     if (gltf.animations.length) {
@@ -85,7 +88,7 @@ function placePoi(locar, p) {
       mx.clipAction(gltf.animations[0]).play();
       mixers.push(mx);
     }
-  }, undefined, (e) => console.warn('GLB gagal dimuat, pakai marker.', p.model, e));
+  }, undefined, (e) => { glbFail++; console.warn('GLB gagal dimuat, pakai marker.', p.model, e); });
 }
 
 function updateHud() {
@@ -116,19 +119,31 @@ function onPosition(lat, lon, acc) {
 }
 
 
-// Petunjuk arah: bantu mencari pin terdekat dan cek apakah pin sudah dimuat
+// Baris HUD dibuat lewat JS supaya tidak tergantung isi index.html
+function hudLine(id) {
+  let e = document.getElementById(id);
+  if (!e) { e = document.createElement('div'); e.id = id; e.style.fontSize = '13px'; $('hud').appendChild(e); }
+  return e;
+}
+
+// Petunjuk arah dan info diagnosa (versi, jumlah objek, status GLB, arah kompas)
 function updateArah() {
-  const el = $('arah');
+  const arah = hudLine('arah'), dbg = hudLine('debug');
+  dbg.textContent = `${APP_VERSION} | objek AR: ${meshes.size}/${pois.length} | model GLB: ${glbOk} ok, ${glbFail} gagal`;
   if (!camRef || !nearestId) return;
   const obj = meshes.get(nearestId);
-  if (!obj) { el.textContent = 'Menunggu objek AR dimuat...'; return; }
+  if (!obj) { arah.textContent = 'Menunggu objek AR dimuat...'; return; }
   const fwd = new THREE.Vector3(); camRef.getWorldDirection(fwd); fwd.y = 0;
   const to = obj.position.clone().sub(camRef.position); to.y = 0;
-  if (fwd.lengthSq() < 1e-6 || to.lengthSq() < 1e-6) return;
+  if (fwd.lengthSq() < 1e-6 || to.lengthSq() < 1e-6) { arah.textContent = 'Arah belum bisa dihitung. Pegang HP tegak.'; return; }
   fwd.normalize(); to.normalize();
+  const deg = (r) => (r * 180 / Math.PI + 360) % 360;
+  const hdg = Math.round(deg(Math.atan2(fwd.x, -fwd.z)));  // 0 = utara, 90 = timur
+  const brg = Math.round(deg(Math.atan2(to.x, -to.z)));
   const ang = Math.round(Math.acos(Math.min(1, Math.max(-1, fwd.dot(to)))) * 180 / Math.PI);
   const kanan = (fwd.z * to.x - fwd.x * to.z) < 0;
-  el.textContent = ang < 20 ? 'Pin tepat di depanmu' : `Putar ke ${kanan ? 'kanan' : 'kiri'} sekitar ${ang}°`;
+  const teks = ang < 20 ? 'Pin tepat di depanmu' : `Putar ke ${kanan ? 'kanan' : 'kiri'} sekitar ${ang}°`;
+  arah.textContent = `${teks} (menghadap ${hdg}°, pin di ${brg}°)`;
 }
 
 function openSheet(id) {
@@ -175,6 +190,10 @@ async function boot() {
   }
   const { scene, camera } = app;
   camRef = camera;
+  scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.5);
+  sun.position.set(5, 10, 7);
+  scene.add(sun);
 
   // locar.add() akan error kalau dipanggil sebelum ada posisi GPS pertama,
   // jadi objek baru dipasang saat gpsupdate yang pertama.
