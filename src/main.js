@@ -13,6 +13,7 @@ let pois = [], radiusDefault = 25, visited = loadVisited();
 const meshes = new Map();
 const mixers = [];
 let me = null; // {lat, lon, acc}
+let camRef = null, nearestId = null;
 
 function loadVisited() {
   try { return new Set(JSON.parse(localStorage.getItem(STORE) || '[]')); } catch { return new Set(); }
@@ -95,6 +96,7 @@ function updateHud() {
     const d = distance(me.lat, me.lon, p.lat, p.lon);
     if (!best || d < best.d) best = { p, d };
   }
+  nearestId = best.p.id;
   $('nearest').textContent = `Terdekat: ${best.p.nama}, ${Math.round(best.d)} m`;
   const weak = me.acc > WEAK_ACCURACY;
   $('gps').textContent = weak
@@ -113,9 +115,33 @@ function onPosition(lat, lon, acc) {
   updateHud();
 }
 
+
+// Petunjuk arah: bantu mencari pin terdekat dan cek apakah pin sudah dimuat
+function updateArah() {
+  const el = $('arah');
+  if (!camRef || !nearestId) return;
+  const obj = meshes.get(nearestId);
+  if (!obj) { el.textContent = 'Menunggu objek AR dimuat...'; return; }
+  const fwd = new THREE.Vector3(); camRef.getWorldDirection(fwd); fwd.y = 0;
+  const to = obj.position.clone().sub(camRef.position); to.y = 0;
+  if (fwd.lengthSq() < 1e-6 || to.lengthSq() < 1e-6) return;
+  fwd.normalize(); to.normalize();
+  const ang = Math.round(Math.acos(Math.min(1, Math.max(-1, fwd.dot(to)))) * 180 / Math.PI);
+  const kanan = (fwd.z * to.x - fwd.x * to.z) < 0;
+  el.textContent = ang < 20 ? 'Pin tepat di depanmu' : `Putar ke ${kanan ? 'kanan' : 'kiri'} sekitar ${ang}°`;
+}
+
 function openSheet(id) {
   const p = pois.find((x) => x.id === id); if (!p) return;
-  $('sName').textContent = p.nama;
+  $('sName').textContent = (p.nomor ? p.nomor + '. ' : '') + p.nama;
+  const img = $('sImg');
+  if (p.gambar) {
+    img.src = `${import.meta.env.BASE_URL}images/${p.gambar}`;
+    img.alt = p.nama;
+    img.hidden = false;
+  } else {
+    img.hidden = true;
+  }
   $('sDesc').textContent = p.deskripsi;
   const d = me ? Math.round(distance(me.lat, me.lon, p.lat, p.lon)) : null;
   $('sDist').textContent = (d == null ? 'Jarak belum diketahui.' : `Jarak kamu: ${d} m`) + (visited.has(id) ? ' (sudah dikunjungi)' : '');
@@ -148,6 +174,7 @@ async function boot() {
     throw new Error(msg);
   }
   const { scene, camera } = app;
+  camRef = camera;
 
   // locar.add() akan error kalau dipanggil sebelum ada posisi GPS pertama,
   // jadi objek baru dipasang saat gpsupdate yang pertama.
@@ -195,6 +222,7 @@ async function boot() {
     const dt = clock.getDelta();
     meshes.forEach((g) => { if (g.userData.spin) g.userData.spin.rotation.y += dt * 1.5; });
     mixers.forEach((m) => m.update(dt));
+    updateArah();
     requestAnimationFrame(tick);
   })();
 
