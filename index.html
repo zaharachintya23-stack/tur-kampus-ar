@@ -28,6 +28,7 @@
     background:var(--bg); border-radius:18px 18px 0 0; transform:translateY(110%); transition:transform .2s; }
   #sheet.open { transform:none; }
   #sheet h2 { margin:0 0 4px; font-size:20px; }
+  #sheet img { width:100%; max-height:30vh; object-fit:cover; border-radius:12px; margin:0 0 10px; }
   #sheet p { margin:0 0 12px; opacity:.9; }
   [hidden] { display:none !important; }
   @media (prefers-reduced-motion: reduce) { #sheet { transition:none; } }
@@ -41,7 +42,9 @@
   <div id="gps">Menunggu sinyal GPS...</div>
 </div>
 <div id="sheet" role="dialog" aria-live="polite">
-  <h2 id="sName"></h2><p id="sDesc"></p><p id="sDist"></p>
+  <h2 id="sName"></h2>
+  <img id="sImg" alt="" hidden>
+  <p id="sDesc"></p><p id="sDist"></p>
   <button id="sClose">Tutup</button>
 </div>
 <div id="start">
