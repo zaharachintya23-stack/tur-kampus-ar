@@ -1,11 +1,17 @@
 {
-  "radiusDefault": 25,
+  "radiusDefault": 10,
   "pois": [
-    { "id": "gerbang", "nama": "Gerbang Utama", "lat": 3.5700, "lon": 98.6800, "surveyed": false,
-      "deskripsi": "Gerbang Depan UMSU.", "model": null, "warna": "#e4572e" },
-    { "id": "rektorat", "nama": "Gedung Rektorat", "lat": 3.5703, "lon": 98.6804, "surveyed": false,
-      "deskripsi": "GANTI: deskripsi singkat tempat ini.", "model": null, "warna": "#2e86ab" },
-    { "id": "perpustakaan", "nama": "Perpustakaan", "lat": 3.5706, "lon": 98.6797, "surveyed": false,
-      "deskripsi": "GANTI: deskripsi singkat tempat ini.", "model": null, "warna": "#76b041" }
+    { "id": "gerbang-depan", "nomor": 1, "nama": "Gerbang Depan", "lat": 3.6147209, "lon": 98.6761992, "surveyed": true,
+      "gambar": "gerbang_depan.jpg", "deskripsi": "Pintu masuk utama kampus, titik awal tur.", "model": "pin.glb", "skala": 10 },
+    { "id": "gedung-rektorat", "nomor": 2, "nama": "Gedung Rektorat", "lat": 3.6144471, "lon": 98.6758910, "surveyed": true,
+      "gambar": "rektorat.jpg", "deskripsi": "Gedung Rektorat Universitas Muhammadiyah Sumatera Utara.", "model": "pin.glb", "skala": 10 },
+    { "id": "pmb", "nomor": 3, "nama": "Pusat Informasi Penerimaan Mahasiswa Baru", "lat": 3.6148069, "lon": 98.6760620, "surveyed": true,
+      "gambar": "pmb.jpg", "deskripsi": "Pusat informasi bagi calon mahasiswa baru.", "model": "pin.glb", "skala": 10 },
+    { "id": "perpustakaan", "nomor": 4, "nama": "Perpustakaan", "lat": 3.6146416, "lon": 98.6759705, "surveyed": true,
+      "gambar": "perpustakaan.jpg", "deskripsi": "Perpustakaan kampus.", "model": "pin.glb", "skala": 10 },
+    { "id": "peradilan-semu", "nomor": 5, "nama": "Gedung Peradilan Semu", "lat": 3.6150672, "lon": 98.6755695, "surveyed": true,
+      "gambar": "peradilan_semu.jpg", "deskripsi": "Gedung Peradilan Semu Fakultas Hukum.", "model": "pin.glb", "skala": 10 },
+    { "id": "kantin", "nomor": 6, "nama": "Kantin UMSU", "lat": 3.6172532, "lon": 98.6752916, "surveyed": true,
+      "gambar": "kantin.jpg", "deskripsi": "Kantin kampus untuk makan dan beristirahat.", "model": "pin.glb", "skala": 10 }
   ]
 }
