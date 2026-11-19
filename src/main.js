@@ -14,7 +14,7 @@ const meshes = new Map();
 const mixers = [];
 let me = null; // {lat, lon, acc}
 let camRef = null, nearestId = null;
-const APP_VERSION = 'v0.5.2';
+const APP_VERSION = 'v0.5.3';
 let glbOk = 0, glbFail = 0;
 
 function loadVisited() {
@@ -78,6 +78,13 @@ function placePoi(locar, p) {
   if (!p.model) return;
   new GLTFLoader().load(`${import.meta.env.BASE_URL}models/${p.model}`, (gltf) => {
     const m = gltf.scene;
+    let adaMesh = false;
+    m.traverse((o) => { if (o.isMesh) adaMesh = true; });
+    if (!adaMesh) {  // GLB kosong: pertahankan marker oktahedron
+      glbFail++;
+      console.warn('GLB tidak berisi objek 3D, pakai marker.', p.model);
+      return;
+    }
     m.scale.setScalar(p.skala ?? 10);
     attachPoiId(m, p.id);
     glbOk++;
